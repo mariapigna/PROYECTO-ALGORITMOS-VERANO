@@ -10,5 +10,7 @@ class Pelicula:
         print(f'''TITULO: {self.title}
     - Episodio: {self.episode_id}
     - Fecha de lanzamiento: {self.realease_date}
-    - Opening crawl: {self.opening_crawl}
-    - Director: {self.director}''')
+    - Director: {self.director}
+    - Opening crawl:
+
+{self.opening_crawl}''')

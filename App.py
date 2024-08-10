@@ -22,10 +22,53 @@ class App:
         self.linkear_naves()
         self.linkear_vehiculos()
         self.cargar_personajes()
-        print (self.lista_especies_obj)
-        print (self.lista_peliculas_obj)
-        print(self.lista_personajes_obj)
-        print(self.lista_planetas_obj)
+
+        while True:
+            print(f'''*/*/*/*/*/* BIENVENIDO GEEK */*/*/*/*
+    Elija la opcion que desea consultar (numero):
+1. Ver peliculas de la SAGA 🎞️
+2. Ver lista de especies de seres vivos 🧎
+3. Ver lista de planetas 🪐
+4. Buscar personaje 👀
+5. Salir 💨
+''')
+            actividad=input('-------> ')
+            if actividad=='1':
+                print()
+                for pelicula in self.lista_peliculas_obj:
+                    pelicula.show_pelicula()
+                    print ('''_____________________________________________________________________________________________________________________________________________________________________
+''')
+
+            elif actividad=='2':
+                for especie in self.lista_especies_obj:
+                    especie.show_especie()
+                    print ('''_____________________________________________________________________________________________________________________________________________________________________
+''')
+
+            elif actividad=='3':
+                for planeta in self.lista_planetas_obj:
+                    planeta.show_planeta()
+                    print ('''_____________________________________________________________________________________________________________________________________________________________________
+''')
+            
+            elif actividad=='4':
+                self.buscar_personaje()
+
+            elif actividad=='5':
+                print('May the 4th be with you 👽')
+                break
+
+            else:
+                print('Ingrese una opcion valida! lea bien.')
+            
+
+
+
+
+
+
+            
 
     def cargar_API(self, link):
         info=rq.get(link)
@@ -80,7 +123,7 @@ class App:
                     lista_people.append(self.enlaces_personajes[personaje])
                 for pelicula in planeta['films']:
                     lista_films.append(self.enlaces_films[pelicula])
-                self.lista_especies_obj.append(Planeta(planeta['name'], planeta['rotation_period'], planeta['orbital_period'], planeta['climate'], planeta['population'], planeta['residents'], planeta['films']))
+                self.lista_planetas_obj.append(Planeta(planeta['name'], planeta['rotation_period'], planeta['orbital_period'], planeta['climate'], planeta['population'], lista_people, lista_films))
             url=planets['next']
             if url:
                 planets=self.cargar_API(url)
@@ -93,13 +136,17 @@ class App:
                 lista_films=[]
                 lista_naves=[]
                 lista_vehiculos=[]
+                lista_planetas=[]
+                lista_especies=[]
                 for pelicula in personaje['films']:
                     lista_films.append(self.enlaces_films[pelicula])
                 for nave in personaje['starships']:
                     lista_naves.append(self.enlaces_naves[nave])
                 for vehiculo in personaje['vehicles']:
                     lista_vehiculos.append(self.enlaces_vehiculos[vehiculo])
-                self.lista_personajes_obj.append(Personaje(personaje['name'], personaje['gender'], personaje['homeworld'], lista_films, personaje['species'], lista_naves, lista_vehiculos))
+                for especie in personaje['species']:
+                    lista_especies.append(self.enlaces_especies[especie])
+                self.lista_personajes_obj.append(Personaje(personaje['name'], personaje['gender'], self.enlaces_planetas[personaje['homeworld']], lista_films, lista_especies, lista_naves, lista_vehiculos))
             url=people['next']
             if url:
                 people=self.cargar_API(url)
@@ -124,3 +171,15 @@ class App:
             if url:
                 vehicles=self.cargar_API(url)
 
+    def buscar_personaje(self):
+        entrada=input('''Ingrese el nombre del personaje de interes: 
+- ''')
+        lista_coincidencias=[]
+        for personaje in self.lista_personajes_obj:
+            if entrada.lower() in personaje.name.lower():
+                lista_coincidencias.append(personaje)
+        for personaje in lista_coincidencias:
+            personaje.show_personaje()
+    
+    def validar(dato, validacion, lista=[]):
+            None

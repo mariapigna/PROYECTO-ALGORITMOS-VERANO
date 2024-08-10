@@ -7,6 +7,7 @@ class Especie:
         self.language=language
         self.people=people
         self.films=films
+        self.arreglar_lista()
 
     def show_especie(self):
         print (f'''ESPECIE: {self.name}
@@ -16,3 +17,7 @@ Planeta de origen: {self.homeworld}
 Lengua materna: {self.language}
 Personajes de la especie: {self.people}
 Peliculas donde aparece esta especie: {self.films}''')
+        
+    def arreglar_lista(self):
+        self.people= ', '.join(self.people)
+        self.films=', '.join(self.films)
