@@ -1,6 +1,10 @@
 import requests as rq
+import matplotlib.pyplot as plt
+import pandas as pd
+import csv
+import statistics
 from Clases.Pelicula import Pelicula
-from Clases.Especie import Especie
+from Clases.Especie import Especie 
 from Clases.Planeta import Planeta
 from Clases.Personaje import Personaje
 class App:
@@ -22,6 +26,8 @@ class App:
         self.linkear_naves()
         self.linkear_vehiculos()
         self.cargar_personajes()
+        characters, planets, starships, weapons = self.cargar_datos()
+
 
         while True:
             print(f'''*/*/*/*/*/* BIENVENIDO GEEK */*/*/*/*
@@ -30,7 +36,10 @@ class App:
 2. Ver lista de especies de seres vivos 🧎
 3. Ver lista de planetas 🪐
 4. Buscar personaje 👀
-5. Salir 💨
+5. Grafico de cantidad de personajes nacidos en cada planeta
+6. Graficos de caracteristicas de naves
+7. Estadisticas sobre las naves
+8. Salir 💨
 ''')
             actividad=input('-------> ')
             if actividad=='1':
@@ -54,8 +63,21 @@ class App:
             
             elif actividad=='4':
                 self.buscar_personaje()
+                print ('''_____________________________________________________________________________________________________________________________________________________________________
+''')
 
             elif actividad=='5':
+                self.grafico_personajes_por_planeta(characters)
+                print ('''_____________________________________________________________________________________________________________________________________________________________________
+''')
+
+            elif actividad=='6':
+                print("Opcion 6")
+
+            elif actividad=='7':
+                print("Opcion 7")        
+
+            elif actividad=='8':
                 print('May the 4th be with you 👽')
                 break
 
@@ -68,7 +90,7 @@ class App:
 
 
 
-            
+
 
     def cargar_API(self, link):
         info=rq.get(link)
@@ -183,3 +205,49 @@ class App:
     
     def validar(dato, validacion, lista=[]):
             None
+
+    def cargar_datos(self):
+        characters = []
+        planets = []
+        starships = []
+        weapons = []
+    
+        with open('./characters.csv', newline='') as csvfile:
+            reader = csv.DictReader(csvfile)
+            for row in reader:
+                characters.append(row)
+
+        with open('./planets.csv', newline='') as csvfile:
+            reader = csv.DictReader(csvfile)
+            for row in reader:
+                planets.append(row)
+
+        with open('./starships.csv', newline='') as csvfile:
+            reader = csv.DictReader(csvfile)
+            for row in reader:
+                starships.append(row)
+
+        with open('./weapons.csv', newline='') as csvfile:
+            reader = csv.DictReader(csvfile)
+            for row in reader:
+                weapons.append(row)
+    
+        return characters, planets, starships, weapons
+
+    
+
+    def grafico_personajes_por_planeta(self, characters_list):
+        
+        #Se crea la data de los personajes
+        characters_df = pd.DataFrame(characters_list)
+        planet_counts = characters_df['homeworld'].value_counts()
+        #Se crea la grafica
+        plt.bar(planet_counts.index, planet_counts.values, color='#564bad')
+        plt.xticks(rotation=90, fontsize=8)
+        plt.xlabel('Planeta', fontweight='bold')
+        plt.ylabel('Cantidad de personajes', fontweight='bold')
+        plt.legend(["Cantidades por planeta"])
+        plt.title('Personajes nacidos en cada planeta', fontsize=12, fontweight='bold')
+        #para que la grafica se ajuste bien en la pestaña emergente
+        plt.tight_layout()
+        plt.show()
