@@ -1,5 +1,8 @@
-from Planeta import Planeta  
-from Nave import Nave
+from Clases.PlanetaCSV import PlanetaCSV  
+from Clases.Nave import Nave
+from Clases.Integrante import Integrante
+from Clases.Arma import Arma
+import json
 
 class Mision:
     def __init__(self, nombre, planeta, nave, armas, integrantes):
@@ -39,39 +42,56 @@ class Mision:
             self.integrantes.remove(integrante)
     
     def __str__(self):
-        return (f"Misión: {self.nombre}\nPlaneta: {self.planeta}\nNave: {self.nave}\n"
-                f"Armas: {', '.join([str(arma) for arma in self.armas])}\n"
-                f"Integrantes: {', '.join([str(integrante) for integrante in self.integrantes])}")
+        armas_str = "\n > ".join([str(arma) for arma in self.armas]) if self.armas else "No hay armas seleccionadas"
+        integrantes_str = "\n > ".join([str(integrante) for integrante in self.integrantes]) if self.integrantes else "No hay integrantes seleccionados"
+        
+        return (f"\n*/ {self.nombre} /*\n\n"
+                f'''Planeta: \n > {self.planeta}\n'''
+                f'''Nave: \n > {self.nave}\n'''
+                f"Armas: \n > {armas_str}\n"
+                f"Integrantes:\n > {integrantes_str}\n")
 
-    def cargar_de_archivo(nombre_archivo):
-        misiones = []
+    def cargar_de_archivo(nombre_archivo,armas,planetas,personajes,naves):
         try:
-            with open(nombre_archivo, 'r') as file:
-                contenido = file.read().strip()
-                misiones_texto = contenido.split("\n\n")  # Cada misión está separada por un doble salto de línea
-                
-                for mision_texto in misiones_texto:
-                    lineas = mision_texto.split("\n")
-                    nombre = lineas[0].replace("Misión: ", "").strip()
-                    
-                    # Verificación de formato correcto para la línea del planeta
-                    planeta_info = lineas[1].replace("Planeta: ", "").strip().split(", ")
-                    if len(planeta_info) != 3:
-                        print(f"Error al leer el planeta para la misión '{nombre}'. Formato inesperado: {planeta_info}")
-                        continue
-                    
-                    planeta = Planeta(1, planeta_info[0], planeta_info[1], planeta_info[2])
-                    
-                    # Extraer la nave (esto es un ejemplo y puede necesitar ajustes)
-                    nave_info = lineas[2].replace("Nave: ", "").split(":")
-                    nave = Nave(1, nave_info[0], nave_info[1].split(" ")[1], "Desconocido", "Desconocido", 1)
-                    
-                    armas = []  # Agregar lógica para extraer armas si es necesario
-                    integrantes = []  # Similar para los integrantes
-                    
-                    misiones.append(Mision(nombre, planeta, nave, armas, integrantes))
-                    
+            misiones=[]
+            with open(f'{nombre_archivo}.json','r') as f:
+                datos=json.load(f)
+                for mision in datos:
+                    planeta_fila = planetas[mision['planeta']-1]
+                    planeta = PlanetaCSV(planeta_fila['id'], planeta_fila['name'], planeta_fila['climate'], planeta_fila['terrain'])
+                    nave_fila = naves[mision['nave']-1]
+                    nave = Nave(nave_fila['id'], nave_fila['name'], nave_fila['model'], nave_fila['manufacturer'], nave_fila['starship_class'], nave_fila['crew'])
+                    integrantes= []
+                    for integrante in mision['integrantes']:
+                        integrante_fila = personajes[integrante-1]
+                        integrantes.append(Integrante(integrante_fila['id'], integrante_fila['name'], integrante_fila['species'], integrante_fila['gender']))
+                    armas_selec=[]
+                    for arma in mision['armas']:
+                        arma_fila = armas[arma-1]
+                        armas_selec.append(Arma(arma_fila['id'], arma_fila['name'], arma_fila['model'], arma_fila['manufacturer'], arma_fila['type'], arma_fila['description']))
+                    misiones.append(Mision(mision['name'],planeta, nave, armas_selec,integrantes))
+
+        
+            return misiones
         except FileNotFoundError:
             print(f"El archivo {nombre_archivo} no existe.")
         
-        return misiones
+        
+    
+    def mision_guardado(self):
+        dic={
+            'name':self.nombre,
+            'planeta':int(self.planeta.id),
+            'nave':int(self.nave.id),
+            'armas':[int(x.id) for x in self.armas],
+            'integrantes': [int(x.id) for x in self.integrantes]
+        }
+        return dic
+    
+    def guardar_misiones(misiones, nombre):
+        misiones_guardar=[]
+        for mision in misiones:
+            misiones_guardar.append(mision.mision_guardado())
+        with open(f'{nombre}.json','w') as f:
+            f.write(json.dumps(misiones_guardar))
+    
