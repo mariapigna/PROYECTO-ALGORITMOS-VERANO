@@ -34,5 +34,4 @@ Titulos en los que aparece: {self.films}
 Genero: {self.gender}
 Especie: {self.species}
 Naves utilizados: {self.starships}
-Vehiculos utilizados: {self.vehicles}
-''')
+Vehiculos utilizados: {self.vehicles}''')
