@@ -267,7 +267,7 @@ No hay ninguna coincidencia :(
 
     def grafico_personajes_por_planeta(self, characters_list):
         
-        #Se crea la data de los personajes
+        # Convertir la lista de personajes en un DataFrame
         characters_df = pd.DataFrame(characters_list)
         planet_counts = characters_df['homeworld'].value_counts()
         #Se crea la grafica
@@ -275,15 +275,18 @@ No hay ninguna coincidencia :(
         plt.xticks(rotation=90, fontsize=8)
         plt.xlabel('Planeta', fontweight='bold')
         plt.ylabel('Cantidad de personajes', fontweight='bold')
-        plt.legend(["Cantidades por planeta"])
+        plt.legend(["Cantidades por planeta"], fontsize=8)
         plt.title('Personajes nacidos en cada planeta', fontsize=12, fontweight='bold')
         #para que la grafica se ajuste bien en la pestaña emergente
         plt.tight_layout()
         plt.show()
 
     def graficos_caracteristicas_naves(self, starships_list):
-        # a. Longitud de la nave
+        
+        # Convertir la lista de naves en un DataFrame
         starships_df = pd.DataFrame(starships_list)
+
+        # a. Longitud de la nave
         # Asegurarse de que la longitud sea numérica
         starships_df['length'] = pd.to_numeric(starships_df['length'], errors='coerce')
         # Ordenar las naves por longitud
@@ -293,7 +296,8 @@ No hay ninguna coincidencia :(
         plt.yscale('log')  
         plt.xticks(rotation=90, fontsize=8)
         plt.xlabel('Naves',fontweight='bold')
-        plt.ylabel('Longitud (m)',fontweight='bold')
+        plt.ylabel('Longitud',fontweight='bold')
+        plt.legend(["Longitud por nave"], fontsize=8)
         plt.title('Longitud de las naves', fontsize=12, fontweight='bold')
         plt.tight_layout()
         plt.show()
@@ -308,7 +312,8 @@ No hay ninguna coincidencia :(
         plt.yscale('log')  
         plt.xticks(rotation=90, fontsize=8)
         plt.xlabel('Naves',fontweight='bold')
-        plt.ylabel('Capacidad de carga (kg)',fontweight='bold')
+        plt.ylabel('Capacidad de carga',fontweight='bold')
+        plt.legend(["Capacidad de carga por nave"], fontsize=8)
         plt.title('Capacidad de carga de las naves', fontsize=12, fontweight='bold')
         plt.tight_layout()
         plt.show()
@@ -322,6 +327,7 @@ No hay ninguna coincidencia :(
         plt.xticks(rotation=90, fontsize=8)
         plt.xlabel('Naves', fontweight='bold')
         plt.ylabel('Clasificación de hiperimpulsor', fontweight='bold')
+        plt.legend(["Hiperimpulsor por nave"], fontsize=8)
         plt.title('Clasificación de hiperimpulsor de las naves', fontweight='bold', fontsize=12)
         plt.tight_layout()
         plt.show()
@@ -335,14 +341,43 @@ No hay ninguna coincidencia :(
         plt.xticks(rotation=90, fontsize=8)
         plt.xlabel('Naves', fontweight='bold')
         plt.ylabel('MGLT', fontweight='bold')
+        plt.legend(["MGLT por nave"], fontsize=8)
         plt.title('Modern Galactic Light Time de las naves', fontsize=12, fontweight='bold')
         plt.tight_layout()
         plt.show()   
 
     def estadisticas_naves(self, starships_list):
-        #Convertir la lista a un DataFrame de Pandas
+        # Convertir la lista de naves en un DataFrame
         starships_df = pd.DataFrame(starships_list)
-        #Seleccionar columnas específicas, convertir valores a numéricos y calcular estadísticas agregadas
-        print(starships_df[
-            ["hyperdrive_rating","MGLT","max_atmosphering_speed","cost_in_credits"]
-        ].apply(pd.to_numeric, errors = "coerce").aggregate(["mean",statistics.mode,"max","min"]))    
+
+        # Convertir columnas a valores numéricos, manejando errores con NaN
+        starships_df[
+            ["hyperdrive_rating", "MGLT",
+                "max_atmosphering_speed", "cost_in_credits"]
+        ] = starships_df[["hyperdrive_rating", "MGLT",
+                          "max_atmosphering_speed", "cost_in_credits"]
+                         ].apply(pd.to_numeric, errors="coerce")
+
+        # Calcular estadísticas de MGLT por clase de nave
+        print()
+        print("MGLT:")
+        print(starships_df.groupby("starship_class")["MGLT"].aggregate(
+            ["mean", statistics.mode, "max", "min"]))
+
+         # Calcular estadísticas de calificación de hiperimpulsor por clase de nave
+        print()
+        print("Calificación de hiperimpulsor:")
+        print(starships_df.groupby("starship_class")["hyperdrive_rating"].aggregate(
+            ["mean", statistics.mode, "max", "min"]))
+
+        # Calcular estadísticas de velocidad máxima por clase de nave
+        print()
+        print("Velocidad máxima en atmósfera:")
+        print(starships_df.groupby("starship_class")["max_atmosphering_speed"].aggregate(
+            ["mean", statistics.mode, "max", "min"]))
+
+        # Calcular estadísticas de costo por clase de nave
+        print()
+        print("Costo en créditos:")
+        print(starships_df.groupby("starship_class")["cost_in_credits"].aggregate(
+            ["mean", statistics.mode, "max", "min"]))    
